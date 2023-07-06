@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Data.Sqlite;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,8 +12,6 @@ namespace FlashcardsApp
         internal void showCreateMenu()
         {
             Console.Clear();
-            Console.WriteLine("Enter in the name of your new stack: ");
-            var stackName = Console.ReadLine();
 
             Console.WriteLine("-------------------------------------------------");
             Console.WriteLine("Enter 1 to create a new card.");
