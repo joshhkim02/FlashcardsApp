@@ -10,6 +10,7 @@ namespace FlashcardsApp
 {
     internal class Menu
     {
+        // Get the path to the database file and save it for connection open/close later
         static string connectString = Path.Combine(AppContext.BaseDirectory, "FlashcardsDB.db");
         static string connectionString = $"Data Source= {connectString}";
         createStackMenu createStack = new();
@@ -57,43 +58,20 @@ namespace FlashcardsApp
             }
         }
 
-        internal void addCard()
-        {
-            Console.WriteLine("Enter in the ID of the stack you want to add this to.");
-            var stackID = Console.ReadLine(); 
-
-            Console.WriteLine("What would you like to write on the front?");
-            var frontDesc = Console.ReadLine();
-
-            Console.WriteLine("What would you like to write on the back?");
-            var backDesc = Console.ReadLine();
-
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                connection.Open();
-                var tableCmd = connection.CreateCommand();
-                tableCmd.CommandText =
-                    $"INSERT INTO Flashcard(StackID, FrontDesc, BackDesc) VALUES ('{stackID}', '{frontDesc}', '{backDesc}')";
-
-                tableCmd.ExecuteNonQuery();
-                connection.Close();
-            }
-        }
-
         internal void createNewStack()
         {
             Console.Clear();
             Console.WriteLine("Enter in the name of your new stack: ");
-            var stackName = Console.ReadLine();
+            var stackName = Console.ReadLine(); // Save user input to insert into database later
 
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
                 var tableCmd = connection.CreateCommand();
                 tableCmd.CommandText =
-                    $"INSERT INTO Stack(StackName) VALUES ('{stackName}')";
+                    $"INSERT INTO Stack(StackName) VALUES ('{stackName}')"; // Use string interpolation to insert name of stack
 
-                tableCmd.ExecuteNonQuery();
+                tableCmd.ExecuteNonQuery(); // We are not querying anything from table, simply inserting a record into the table
                 connection.Close();
             }
         }
@@ -108,24 +86,25 @@ namespace FlashcardsApp
                 tableCmd.CommandText =
                     "SELECT * FROM Stack";
 
-                List<Stack> stacks = new();
+                List<Stack> stacks = new(); // Create a list of the Stack type to populate with data later
 
-                SqliteDataReader reader = tableCmd.ExecuteReader();
+                SqliteDataReader reader = tableCmd.ExecuteReader(); // Initialize reader to retrieve data
 
-                if (reader.HasRows)
+                if (reader.HasRows) // Ensure there is data in the table
                 {
                     while (reader.Read())
                     {
-                        stacks.Add(
+                        stacks.Add(     // Add entries to the list
                             new Stack
                             {
-                                StackID = reader.GetInt32(0),
-                                StackName = reader.GetString(1)
+                                StackID = reader.GetInt32(0),   // According to database table, StackID and StackName are in positions 0 & 1, respectively                                                                 * 
+                                StackName = reader.GetString(1)     
                             });
                     }
                 } else Console.WriteLine("No rows found.");
                 connection.Close();
 
+                // Print out all records in the list
                 Console.WriteLine("-----------------------------------");
                 foreach (var stack in stacks)
                 {
