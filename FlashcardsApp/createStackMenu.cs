@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,23 +13,20 @@ namespace FlashcardsApp
         // Get the path to the database file and save it for connection open/close later
         static string connectString = Path.Combine(AppContext.BaseDirectory, "FlashcardsDB.db");
         static string connectionString = $"Data Source= {connectString}";
+        // Establish global variables to ensure the same stack is edited after every operation
+        int timesRun = 0;
+        int stackChoice = 0;
         
-        internal int getChoice()
-        {
-            Console.WriteLine("Enter the ID of the stack you want to edit.");
-            var userChoice = Console.ReadLine();
-            var result = int.TryParse(userChoice, out var choice);
-            if (result == false)
-            {
-                Console.WriteLine("Enter in an integer. Please try again.");
-                getChoice();
-            }
-            return choice;
-        }
-
         internal void showCreateMenu()
         {
-            var stackChoice = validateChoice();
+            // Makes sure that after every operation the same stack is chosen
+            if (timesRun == 0)
+            {
+                int getChoice = validateChoice();
+                stackChoice = getChoice;
+                timesRun++;
+            }
+
             Console.Clear();
             Console.WriteLine("-------------------------------------------------");
             Console.WriteLine("Enter 1 to create a new card.");
@@ -46,6 +44,7 @@ namespace FlashcardsApp
                     break;
                 case "2":
                     Console.WriteLine("Viewing existing cards...");
+                    viewCards(stackChoice);
                     break;
                 case "3":
                     Console.WriteLine("Deleting an existing card...");
@@ -132,6 +131,53 @@ namespace FlashcardsApp
                 connection.Close();
             }
             showCreateMenu();
+        }
+
+        internal void viewCards(int choice)
+        {
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText =
+                    $"SELECT CardID, FrontDesc, BackDesc FROM Flashcard WHERE StackID = '{choice}'";
+
+                List<Flashcard> flashcards = new();
+
+                SqliteDataReader reader = tableCmd.ExecuteReader();
+
+                var cardOrdinal = reader.GetOrdinal("CardID");
+                var frontOrdinal = reader.GetOrdinal("FrontDesc");
+                var backOrdinal = reader.GetOrdinal("BackDesc");
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        flashcards.Add(
+                            new Flashcard
+                            {
+                                // GetOrdinal gets the index to use (index is also called the ordinal value of the column)
+                                CardID = reader.GetInt32(cardOrdinal),
+                                FrontDesc = reader.GetString(frontOrdinal),
+                                BackDesc = reader.GetString(backOrdinal)
+                            });
+                    }
+                } else Console.WriteLine("No rows found.");
+                connection.Close();
+
+                Console.WriteLine("-----------------------------------");
+                foreach (var card in flashcards)
+                {
+                    Console.WriteLine($"CardID: {card.CardID}");
+                    Console.WriteLine($"Front Description: {card.FrontDesc}");
+                    Console.WriteLine($"Back Description: {card.BackDesc}\n");
+                }
+                Console.WriteLine("-----------------------------------");
+
+
+                Console.ReadLine();
+            }
         }
     }
 }
