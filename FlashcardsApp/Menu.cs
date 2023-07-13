@@ -27,7 +27,8 @@ namespace FlashcardsApp
                 Console.WriteLine("Enter 2 to view existing stacks.");
                 Console.WriteLine("Enter 3 to edit an existing stack.");
                 Console.WriteLine("Enter 4 to delete an existing stack.");
-                Console.WriteLine("Enter 5 to exit.");
+                Console.WriteLine("Enter 5 to start studying a stack.");
+                Console.WriteLine("Enter 6 to exit.");
                 Console.WriteLine("-------------------------------------------------");
 
                 var userInput = Console.ReadLine();
@@ -41,7 +42,6 @@ namespace FlashcardsApp
                         showStacks();
                         Console.WriteLine("Enter any key to return to the menu.");
                         Console.ReadLine();
-                        showMenu();
                         break;
                     case "3":
                         showStacks();
@@ -52,6 +52,9 @@ namespace FlashcardsApp
                         deleteStack();
                         break;
                     case "5":
+                        // code here
+                        break;
+                    case "6":
                         Console.WriteLine("Exiting...");
                         closeApp = true;
                         break;
@@ -140,8 +143,9 @@ namespace FlashcardsApp
                     deleteStack();
                 }
             }
-            Console.WriteLine($"the stack with the ID {deleteChoice} was deleted.");
-            showMenu();
+            Console.WriteLine($"\nThe stack with the ID {deleteChoice} was deleted.");
+            Console.WriteLine("Enter any key to go back to the menu.");
+            Console.ReadLine();
         }
     }
 }
