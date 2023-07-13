@@ -14,8 +14,8 @@ namespace FlashcardsApp
         static string connectString = Path.Combine(AppContext.BaseDirectory, "FlashcardsDB.db");
         static string connectionString = $"Data Source= {connectString}";
         // Establish global variables to ensure the same stack is edited after every operation
-        int timesRun = 0;
-        int stackChoice = 0;
+        internal int timesRun = 0;
+        internal int stackChoice = 0;
         
         internal void showCreateMenu()
         {
@@ -53,7 +53,7 @@ namespace FlashcardsApp
                     deleteCard(stackChoice);
                     break;
                 case "4":
-                    Console.WriteLine("Finishing...");
+                    // Leaving this empty simply finishes the showCreateMenu(), going back to the menu class
                     break;
                 default:
                     Console.WriteLine("Invalid input. Enter any key to try again.");

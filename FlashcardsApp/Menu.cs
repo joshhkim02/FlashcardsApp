@@ -13,7 +13,7 @@ namespace FlashcardsApp
         // Get the path to the database file and save it for connection open/close later
         static string connectString = Path.Combine(AppContext.BaseDirectory, "FlashcardsDB.db");
         static string connectionString = $"Data Source= {connectString}";
-        createStackMenu createStack = new();
+        createStackMenu createStack = new createStackMenu();
 
         internal void showMenu()
         {
@@ -26,7 +26,8 @@ namespace FlashcardsApp
                 Console.WriteLine("Enter 1 to create a new stack.");
                 Console.WriteLine("Enter 2 to view existing stacks.");
                 Console.WriteLine("Enter 3 to edit an existing stack.");
-                Console.WriteLine("Enter 4 to exit.");
+                Console.WriteLine("Enter 4 to delete an existing stack.");
+                Console.WriteLine("Enter 5 to exit.");
                 Console.WriteLine("-------------------------------------------------");
 
                 var userInput = Console.ReadLine();
@@ -47,6 +48,10 @@ namespace FlashcardsApp
                         createStack.showCreateMenu();
                         break;
                     case "4":
+                        showStacks();
+                        deleteStack();
+                        break;
+                    case "5":
                         Console.WriteLine("Exiting...");
                         closeApp = true;
                         break;
@@ -113,6 +118,30 @@ namespace FlashcardsApp
                 }
                 Console.WriteLine("-----------------------------------");
             }
+        }
+
+        internal void deleteStack()
+        {
+            Console.WriteLine("Enter in the ID of the stack you want to delete.");
+            var deleteChoice = Console.ReadLine();
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText =
+                    $"DELETE FROM Stack WHERE StackID = '{deleteChoice}'";
+
+                int rowCount = tableCmd.ExecuteNonQuery();
+                
+                if (rowCount == 0)
+                {
+                    Console.WriteLine($"No stack with the ID {deleteChoice} was found.");
+                    deleteStack();
+                }
+            }
+            Console.WriteLine($"the stack with the ID {deleteChoice} was deleted.");
+            showMenu();
         }
     }
 }
