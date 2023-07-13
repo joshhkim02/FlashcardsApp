@@ -43,11 +43,14 @@ namespace FlashcardsApp
                     addCard(stackChoice);
                     break;
                 case "2":
-                    Console.WriteLine("Viewing existing cards...");
                     viewCards(stackChoice);
+                    Console.WriteLine("Enter any key to go back.");
+                    Console.ReadLine();
+                    showCreateMenu();
                     break;
                 case "3":
-                    Console.WriteLine("Deleting an existing card...");
+                    viewCards(stackChoice);
+                    deleteCard(stackChoice);
                     break;
                 case "4":
                     Console.WriteLine("Finishing...");
@@ -114,6 +117,7 @@ namespace FlashcardsApp
 
         internal void addCard(int choice)
         {
+            Console.Clear();
             Console.WriteLine("What would you like to write on the front?");
             var frontDesc = Console.ReadLine();
 
@@ -135,6 +139,7 @@ namespace FlashcardsApp
 
         internal void viewCards(int choice)
         {
+            Console.Clear();
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
@@ -174,10 +179,31 @@ namespace FlashcardsApp
                     Console.WriteLine($"Back Description: {card.BackDesc}\n");
                 }
                 Console.WriteLine("-----------------------------------");
-
-
-                Console.ReadLine();
             }
+        }
+
+        internal void deleteCard(int choice)
+        {
+            Console.WriteLine("Enter the ID of the card you want to delete.");
+            var deleteChoice = Console.ReadLine();
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText =
+                    $"DELETE FROM FlashCard WHERE CardID = '{deleteChoice}'";
+
+                int rowCount = tableCmd.ExecuteNonQuery();  // Assign the number of rows affected to a variable
+
+                if (rowCount == 0)
+                {
+                    Console.WriteLine($"Record with ID {deleteChoice} does not exist.");
+                    deleteCard(choice);
+                }    
+            }
+            Console.WriteLine($"Record with ID {deleteChoice} was deleted."); // If query goes through, let user know card was deleted
+            showCreateMenu();
         }
     }
 }
