@@ -19,7 +19,7 @@ namespace FlashcardsApp
         {
             bool closeApp = false;
             while (closeApp == false)
-            { 
+            {
                 Console.Clear();
                 Console.WriteLine("-------------------------------------------------");
                 Console.WriteLine("Welcome to your flashcards!");
@@ -52,7 +52,8 @@ namespace FlashcardsApp
                         deleteStack();
                         break;
                     case "5":
-                        // code here
+                        showStacks();
+                        studyStack();
                         break;
                     case "6":
                         Console.WriteLine("Exiting...");
@@ -106,7 +107,7 @@ namespace FlashcardsApp
                             new Stack
                             {
                                 StackID = reader.GetInt32(0),   // According to database table, StackID and StackName are in positions 0 & 1, respectively                                                                 * 
-                                StackName = reader.GetString(1)     
+                                StackName = reader.GetString(1)
                             });
                     }
                 } else Console.WriteLine("No rows found.");
@@ -136,7 +137,7 @@ namespace FlashcardsApp
                     $"DELETE FROM Stack WHERE StackID = '{deleteChoice}'";
 
                 int rowCount = tableCmd.ExecuteNonQuery();
-                
+
                 if (rowCount == 0)
                 {
                     Console.WriteLine($"No stack with the ID {deleteChoice} was found.");
@@ -147,5 +148,74 @@ namespace FlashcardsApp
             Console.WriteLine("Enter any key to go back to the menu.");
             Console.ReadLine();
         }
+
+        internal void studyStack()
+        {
+            Console.WriteLine("Enter in the ID of the stack you want to study.");
+            var studyChoice = Console.ReadLine();
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText =
+                    $"SELECT CardID, FrontDesc, BackDesc FROM Flashcard WHERE StackID = '{studyChoice}'";
+
+                List<Flashcard> flashcards = new();
+
+                SqliteDataReader reader = tableCmd.ExecuteReader();
+
+                var cardOrdinal = reader.GetOrdinal("CardID");
+                var frontOrdinal = reader.GetOrdinal("FrontDesc");
+                var backOrdinal = reader.GetOrdinal("BackDesc");
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        flashcards.Add(
+                            new Flashcard
+                            {
+                                // GetOrdinal gets the index to use (index is also called the ordinal value of the column)
+                                CardID = reader.GetInt32(cardOrdinal),
+                                FrontDesc = reader.GetString(frontOrdinal),
+                                BackDesc = reader.GetString(backOrdinal)
+                            });
+                    }
+                }
+                else Console.WriteLine("No rows found.");
+                connection.Close();
+
+                Console.WriteLine("-----------------------------------");
+
+                int score = 0;
+
+                for (int i = 0; i < flashcards.Count; i++)
+                {
+                    Console.WriteLine(flashcards[i].FrontDesc);
+                    Console.Write("Answer here: ");
+                    var answer = Console.ReadLine();
+
+                    if (answer == flashcards[i].BackDesc)
+                    {
+                        Console.WriteLine($"Correct! The answer is: {flashcards[i].BackDesc}");
+                        Console.WriteLine("Enter any key to go to the next card.");
+                        score++;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Incorrect. The answer is: {flashcards[i].BackDesc}");
+                        Console.WriteLine("Enter any key to go to the next card.");
+                    }
+                    Console.ReadLine();
+                }
+
+                Console.WriteLine($"You've gone through the stack! Your score is: {score}");
+                Console.WriteLine("-----------------------------------");
+
+                Console.ReadLine();
+            }
+        }
     }
 }
+;
