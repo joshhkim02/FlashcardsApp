@@ -53,7 +53,8 @@ namespace FlashcardsApp
                     deleteCard(stackChoice);
                     break;
                 case "4":
-                    // Leaving this empty simply finishes the showCreateMenu(), going back to the menu class
+                    // set timesRun back to 0 so that the next time the menu is instantiated, a different stack can be chosen
+                    timesRun = 0;
                     break;
                 default:
                     Console.WriteLine("Invalid input. Enter any key to try again.");
