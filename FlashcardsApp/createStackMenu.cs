@@ -152,6 +152,7 @@ namespace FlashcardsApp
 
                 SqliteDataReader reader = tableCmd.ExecuteReader();
 
+                // GetOrdinal gets the index to use (index is also called the ordinal value of the column)
                 var cardOrdinal = reader.GetOrdinal("CardID");
                 var frontOrdinal = reader.GetOrdinal("FrontDesc");
                 var backOrdinal = reader.GetOrdinal("BackDesc");
@@ -163,7 +164,7 @@ namespace FlashcardsApp
                         flashcards.Add(
                             new Flashcard
                             {
-                                // GetOrdinal gets the index to use (index is also called the ordinal value of the column)
+                                // Read from the variables that get the ordinal in order to get the corresponding column value
                                 CardID = reader.GetInt32(cardOrdinal),
                                 FrontDesc = reader.GetString(frontOrdinal),
                                 BackDesc = reader.GetString(backOrdinal)

@@ -165,6 +165,7 @@ namespace FlashcardsApp
 
                 SqliteDataReader reader = tableCmd.ExecuteReader();
 
+                // GetOrdinal gets the index to use (index is also called the ordinal value of the column)
                 var cardOrdinal = reader.GetOrdinal("CardID");
                 var frontOrdinal = reader.GetOrdinal("FrontDesc");
                 var backOrdinal = reader.GetOrdinal("BackDesc");
@@ -176,7 +177,7 @@ namespace FlashcardsApp
                         flashcards.Add(
                             new Flashcard
                             {
-                                // GetOrdinal gets the index to use (index is also called the ordinal value of the column)
+                                // Read from the variables that get the ordinal in order to get the corresponding column value
                                 CardID = reader.GetInt32(cardOrdinal),
                                 FrontDesc = reader.GetString(frontOrdinal),
                                 BackDesc = reader.GetString(backOrdinal)
@@ -186,12 +187,12 @@ namespace FlashcardsApp
                 else Console.WriteLine("No rows found.");
                 connection.Close();
 
-                Console.WriteLine("-----------------------------------");
-
+                Console.Clear();
                 int score = 0;
 
                 for (int i = 0; i < flashcards.Count; i++)
                 {
+                    Console.Clear();
                     Console.WriteLine(flashcards[i].FrontDesc);
                     Console.Write("Answer here: ");
                     var answer = Console.ReadLine();
@@ -210,9 +211,11 @@ namespace FlashcardsApp
                     Console.ReadLine();
                 }
 
+                Console.Clear();
+                Console.WriteLine("--------------------------------------------------------");
                 Console.WriteLine($"You've gone through the stack! Your score is: {score}");
-                Console.WriteLine("-----------------------------------");
-
+                Console.WriteLine("Enter any key to go back to the main menu.");
+                Console.WriteLine("--------------------------------------------------------");
                 Console.ReadLine();
             }
         }
